@@ -6,6 +6,10 @@
 #include "GameFramework/Character.h"
 #include "JZCharacterBase.generated.h"
 
+class USpringArmComponent;
+class UCameraComponent;
+class UStaticMeshComponent;
+
 UCLASS()
 class UE4STUDY_API AJZCharacterBase : public ACharacter
 {
@@ -16,12 +20,29 @@ public:
 	AJZCharacterBase();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+	void TurnRightAtRate(float Value);
+	void LookUpAtRate(float Value);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	float BaseTurnRightRate = 45.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	float BaseLookUpAtRate = 45.f;
 
 public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	USpringArmComponent* SpringArmComp = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	UCameraComponent* CameraComp = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	UStaticMeshComponent* MeshComp = nullptr;
 };
