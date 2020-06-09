@@ -24,18 +24,42 @@ AJZCharacterBase::AJZCharacterBase() :
 
 void AJZCharacterBase::MoveForward(float Value)
 {
+	if (Controller && Value != 0)
+	{
+		// GetControlRotation is not GetActorRotation, which is a global rotation
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		// YawRotation.Vector() is okay to use here
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		// auto Direction1 = GetActorForwardVector().GetSafeNormal();
+		// not working, orient rotation to movement is true
+		AddMovementInput(Direction, Value);
+	}
 }
 
 void AJZCharacterBase::MoveRight(float Value)
 {
+	if (Controller && Value != 0)
+	{
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// YawRotation.Vector() cannot be used here becuase .Vector() is facing the direction (forward)
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		// auto Direction1 = GetActorRightVector().GetSafeNormal();  
+		// not working, orient rotation to movement is true && forward direction shouldn't affect right vector, it should be global one with camera
+		AddMovementInput(Direction, Value);
+	}
 }
 
 void AJZCharacterBase::TurnRightAtRate(float Value)
 {
+	AddControllerYawInput(Value * BaseTurnRightRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AJZCharacterBase::LookUpAtRate(float Value)
 {
+	AddControllerPitchInput(Value * BaseLookUpAtRate * GetWorld()->GetDeltaSeconds());
 }
 
 // Called to bind functionality to input
@@ -51,6 +75,6 @@ void AJZCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAxis("TurnRight", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("TurnRightAtRate", this, &AJZCharacterBase::TurnRightAtRate);
-	PlayerInputComponent->BindAxis("LookUpAtRate", this, &AJZCharacterBase::LookUpAtRate);
+	PlayerInputComponent->BindAxis("TurnRightRate", this, &AJZCharacterBase::TurnRightAtRate);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AJZCharacterBase::LookUpAtRate);
 }
