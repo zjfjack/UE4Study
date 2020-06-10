@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AJZCharacterBase::AJZCharacterBase() :
@@ -62,6 +63,29 @@ void AJZCharacterBase::LookUpAtRate(float Value)
 	AddControllerPitchInput(Value * BaseLookUpAtRate * GetWorld()->GetDeltaSeconds());
 }
 
+void AJZCharacterBase::Interact()
+{
+	TraceFoward();
+}
+
+void AJZCharacterBase::TraceFoward_Implementation()
+{
+	FVector Location;
+	FRotator Rotation;
+	FHitResult Hit;
+	// Location: CameraComp->GetComponentLocation()
+	// Rotation.Vector(): CameraComp->GetForwardVector()
+	GetController()->GetPlayerViewPoint(Location, Rotation);
+	FVector& Start = Location;
+	FVector End = Start + (Rotation.Vector() * TraceDistance);
+	FCollisionQueryParams TraceParams;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility);
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
+	if (bHit)
+		DrawDebugBox(GetWorld(), Hit.ImpactPoint, FVector(10.f), FColor::Red, false, 2.0f);
+}
+
 // Called to bind functionality to input
 void AJZCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -69,6 +93,7 @@ void AJZCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AJZCharacterBase::Interact);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AJZCharacterBase::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AJZCharacterBase::MoveRight);
