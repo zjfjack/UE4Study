@@ -79,6 +79,7 @@ void AJZCharacterBase::TraceFoward_Implementation()
 	FVector& Start = Location;
 	FVector End = Start + (Rotation.Vector() * TraceDistance);
 	FCollisionQueryParams TraceParams;
+	                                                                  // Collision presets
 	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility);
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
