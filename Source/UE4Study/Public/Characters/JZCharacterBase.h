@@ -41,6 +41,7 @@ protected:
 	void TraceFoward_Implementation();
 
 public:
+	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -53,4 +54,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
 	UStaticMeshComponent* MeshComp = nullptr;
+
+private:
+	AActor* FocusedActor = nullptr;
+
+	void OnLineTraceHitActor(AActor* Interactable);
+	void OnInteract(AActor* Actor);
+	void StartFocus(AActor* Actor);
+	void EndFocus(AActor* Actor);
 };
